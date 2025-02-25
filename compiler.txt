@@ -1,0 +1,339 @@
+question 0:-
+//lex.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+"void"          { return VOID; }
+"int"           { return INT; }
+"if"            { return IF; }
+"else"          { return ELSE; }
+"=="            { return EQ; }
+"="             { return ASSIGN; }
+"%"             { return MOD; }
+"\+\+"          { return INC; }
+"--"            { return DEC; }
+"\("            { return LPAREN; }
+"\)"            { return RPAREN; }
+"\{"            { return LBRACE; }
+"\}"            { return RBRACE; }
+";"             { return SEMICOLON; }
+[a-zA-Z_][a-zA-Z0-9_]* { return ID; }
+[0-9]+          { return NUMBER; }
+[ \t\n]         { /* Ignore whitespace */ }
+.               { printf("Unexpected character: %s\n", yytext); }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+
+//yacc.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+void yyerror(const char *s);
+int yylex();
+%}
+
+%token VOID INT IF ELSE EQ ASSIGN MOD INC DEC LPAREN RPAREN LBRACE RBRACE SEMICOLON ID NUMBER
+
+%%
+
+program:
+    VOID ID LPAREN RPAREN LBRACE stmt_list RBRACE
+    ;
+
+stmt_list:
+    stmt_list stmt
+    | stmt
+    ;
+
+stmt:
+    INT ID SEMICOLON
+    | IF LPAREN LPAREN ID MOD NUMBER RPAREN EQ NUMBER RPAREN stmt
+    | stmt ELSE stmt
+    | ID ASSIGN ID INC SEMICOLON
+    | ID ASSIGN ID DEC SEMICOLON
+    ;
+
+%%
+
+void yyerror(const char *s) {
+    printf("Error: %s\n", s);
+}
+
+int main() {
+    printf("Enter code to parse:\n");
+    yyparse();
+    printf("Parsing complete.\n");
+    return 0;
+}
+question 1
+%{
+#include <stdio.h>
+
+int token_count = 0; // Counter for total tokens
+%}
+
+%%
+"main"          { printf("<KEYWORD: main>\n"); token_count++; }
+"int"           { printf("<KEYWORD: int>\n"); token_count++; }
+"char"          { printf("<KEYWORD: char>\n"); token_count++; }
+"return"        { printf("<KEYWORD: return>\n"); token_count++; }
+"if"            { printf("<KEYWORD: if>\n"); token_count++; }
+"else"          { printf("<KEYWORD: else>\n"); token_count++; }
+"printf"        { printf("<KEYWORD: printf>\n"); token_count++; }
+"getchar"       { printf("<KEYWORD: getchar>\n"); token_count++; }
+
+[0-9]+          { printf("<NUMBER: %s>\n", yytext); token_count++; }
+"=="            { printf("<OPERATOR: ==>\n"); token_count++; }
+"="             { printf("<OPERATOR: =>\n"); token_count++; }
+";"             { printf("<SYMBOL: ;>\n"); token_count++; }
+","             { printf("<SYMBOL: ,>\n"); token_count++; }
+"("             { printf("<SYMBOL: (>\n"); token_count++; }
+")"             { printf("<SYMBOL: )>\n"); token_count++; }
+"{"             { printf("<SYMBOL: {>\n"); token_count++; }
+"}"             { printf("<SYMBOL: }>\n"); token_count++; }
+"\["            { printf("<SYMBOL: [>\n"); token_count++; }
+"\]"            { printf("<SYMBOL: ]>\n"); token_count++; }
+"\+\+"          { printf("<OPERATOR: ++>\n"); token_count++; }
+"--"            { printf("<OPERATOR: -->\n"); token_count++; }
+"\|\|"          { printf("<OPERATOR: ||>\n"); token_count++; }
+"\""            { printf("<SYMBOL: \">\n"); token_count++; }
+
+[a-zA-Z_][a-zA-Z0-9_]* { printf("<IDENTIFIER: %s>\n", yytext); token_count++; }
+
+[ \t\n]         { /* Ignore whitespace */ }
+"//".*          { printf("<COMMENT: %s>\n", yytext); token_count++; }
+"/*"([^*]|\*+[^*/])*\*+"/" { printf("<MULTILINE COMMENT>\n"); token_count++; }
+
+.               { printf("<UNKNOWN: %s>\n", yytext); token_count++; }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Scanning tokens...\n");
+    yylex();
+    printf("Total tokens: %d\n", token_count);
+    return 0;
+}
+Question2 
+//lex.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+"int"           { return INT; }
+"if"            { return IF; }
+"else"          { return ELSE; }
+"\*"            { return MULTIPLY; }
+"\+="           { return MUL_ASSIGN; }
+"=="            { return EQ; }
+">="            { return GE; }
+"<="            { return LE; }
+"&&"            { return AND; }
+"="             { return ASSIGN; }
+";"             { return SEMICOLON; }
+","             { return COMMA; }
+"\("            { return LPAREN; }
+"\)"            { return RPAREN; }
+"\{"            { return LBRACE; }
+"\}"            { return RBRACE; }
+[a-zA-Z_][a-zA-Z0-9_]* { return ID; }
+[0-9]+          { return NUMBER; }
+[ \t\n]         { /* Ignore whitespace */ }
+.               { printf("Unexpected character: %s\n", yytext); }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+
+//yacc.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+void yyerror(const char *s);
+int yylex();
+%}
+
+%token INT IF ELSE MULTIPLY MUL_ASSIGN EQ GE LE AND ASSIGN SEMICOLON COMMA LPAREN RPAREN LBRACE RBRACE ID NUMBER
+
+%%
+
+program:
+    declaration stmt
+    ;
+
+declaration:
+    INT var_list SEMICOLON
+    ;
+
+var_list:
+    var_list COMMA var
+    | var
+    ;
+
+var:
+    ID
+    | MULTIPLY ID
+    ;
+
+stmt:
+    IF LPAREN ID EQ NUMBER RPAREN stmt
+    | IF LPAREN ID GE NUMBER AND ID LE NUMBER RPAREN stmt
+    | stmt ELSE stmt
+    | ID MUL_ASSIGN NUMBER SEMICOLON
+    | LBRACE stmt RBRACE
+    ;
+
+%%
+
+void yyerror(const char *s) {
+    printf("Error: %s\n", s);
+}
+
+int main() {
+    printf("Enter code to parse:\n");
+    yyparse();
+    printf("Parsing complete.\n");
+    return 0;
+}
+
+Question 3
+lex.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+"int"           { return INT; }
+"main"          { return MAIN; }
+"switch"        { return SWITCH; }
+"case"          { return CASE; }
+"break"         { return BREAK; }
+"default"       { return DEFAULT; }
+"return"        { return RETURN; }
+"printf"        { return PRINTF; }
+"="             { return ASSIGN; }
+":"             { return COLON; }
+";"             { return SEMICOLON; }
+","             { return COMMA; }
+[a-zA-Z_][a-zA-Z0-9_]* { return ID; }
+[0-9]+          { return NUMBER; }
+[ \t\n]         { /* Ignore whitespace */ }
+\"[^\"]*\"      { return STRING; }
+.               { printf("Unexpected character: %s\n", yytext); }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+yacc.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+void yyerror(const char *s);
+int yylex();
+%}
+
+%token INT MAIN SWITCH CASE BREAK DEFAULT RETURN PRINTF ASSIGN COLON SEMICOLON COMMA ID NUMBER STRING
+
+%%
+
+program:
+    INT MAIN stmt_list RETURN NUMBER SEMICOLON
+    ;
+
+stmt_list:
+    stmt_list stmt
+    | stmt
+    ;
+
+stmt:
+    INT ID ASSIGN NUMBER SEMICOLON
+    | SWITCH ID case_list default_case
+    ;
+
+case_list:
+    case_list CASE NUMBER COLON PRINTF STRING SEMICOLON BREAK SEMICOLON
+    | CASE NUMBER COLON PRINTF STRING SEMICOLON BREAK SEMICOLON
+    ;
+
+default_case:
+    DEFAULT COLON PRINTF STRING SEMICOLON BREAK SEMICOLON
+    ;
+
+%%
+
+void yyerror(const char *s) {
+    printf("Error: %s\n", s);
+}
+
+int main() {
+    printf("Enter code to parse:\n");
+    yyparse();
+    printf("Parsing complete.\n");
+    return 0;
+}
+from collections import defaultdict
+
+def compute_first(grammar, symbol, first_sets):
+    if symbol.islower() or symbol in "+-*/()ε":
+        return {symbol}
+    
+    if symbol in first_sets:
+        return first_sets[symbol]
+    
+    first_set = set()
+    
+    for production in grammar[symbol]:
+        for char in production:
+            char_first = compute_first(grammar, char, first_sets)
+            first_set.update(char_first - {'ε'})
+            if 'ε' not in char_first:
+                break
+        else:
+            first_set.add('ε')
+
+    first_sets[symbol] = first_set
+    return first_set
+
+def compute_first_sets(grammar):
+    first_sets = {}
+    for non_terminal in grammar:
+        compute_first(grammar, non_terminal, first_sets)
+    return first_sets
+
+grammar = {
+    'E': ['TR'],
+    'R': ['+TR', 'ε'],
+    'T': ['FY'],
+    'Y': ['*FY', 'ε'],
+    'F': ['(E)', 'id']
+}
+
+first_sets = compute_first_sets(grammar)
+
+print("\nFIRST sets:")
+for non_terminal, first_set in first_sets.items():
+    print(f"FIRST({non_terminal}) = {first_set}")
