@@ -337,3 +337,16 @@ first_sets = compute_first_sets(grammar)
 print("\nFIRST sets:")
 for non_terminal, first_set in first_sets.items():
     print(f"FIRST({non_terminal}) = {first_set}")
+lex filename.l   # Generates lex.yy.c
+gcc -o output lex.yy.c -lfl  # Compiles lex.yy.c into an executable
+./output     
+
+lex lexer.l
+yacc -d parser.y
+gcc y.tab.c -ll
+./a.out
+
+lex name.l
+yacc -d namey.y
+gcc lex.yy.c y.tab.c -ll
+,/a.out
